@@ -1,21 +1,59 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+typedef struct{
+    char *buffer = NULL;
+    size_t size_buffer = -1;
+    char **poem = NULL;
+    size_t num_lines = -1;
+}Text;
+
 
 FILE *init_file(int argc, char *argv[]);
 void  close_file(FILE * fp, char * filename);
 
-void read_to_buffer(char *buffer, size_t *size_file, FILE *fp);
-void set_lines_to_text(char **text, char* buffer, size_t size_file);
+void read_to_buffer(Text *text, FILE *fp);
+void set_lines_to_text(Text *text);
 
 size_t get_size_file(FILE * fp);
-size_t get_num_lines(char * buffer, size_t size_file);
+void set_num_lines(Text *text);
 
 void clear_text(char **text, char * buffer);
 void print_text(char **text, size_t num_lines);
 
+void init_Text_from_file(Text *text, FILE *fp);
+
+//TODO: change void to type of error and error handling
+void init_Text_from_file(Text *text, FILE *fp)
+{
+    text->size_buffer = get_size_file(fp);
+    text->buffer = (char *)calloc(text->size_buffer + 1, sizeof(char));
+
+    read_to_buffer(text, fp);
+    set_num_lines(text);
+    
+    text->poem = (char **)calloc(text->num_lines, sizeof(char *));
+    set_lines_to_text(text);
+
+}
+
+
+int main(int argc, char *argv[])
+{
+    Text text;
+    FILE * fp = init_file(argc, argv);
+    
+    init_Text_from_file(&text, fp);
+    close_file(fp, argv[1]);
+
+    print_text(text.poem, text.num_lines);
+    
+    clear_text(text.poem, text.buffer);
+}
+//TODO: divide to two functions 
 FILE *init_file(int argc, char *argv[])
 {
-    FILE *fp;
+    FILE *fp = NULL;
     
     if (argc != 2){
         fprintf(stderr, "Write ./a.out <filename.txt>\n");
@@ -35,21 +73,21 @@ void close_file(FILE * fp, char * filename)
         fprintf(stderr, "File close error: <%s>\n", filename);
 }
 
-void read_to_buffer(char *buffer, size_t *size_file, FILE *fp)
+void read_to_buffer(Text *text, FILE *fp)
 {
-    fread(buffer, sizeof(char), *size_file, fp);
+    fread(text->buffer, sizeof(char), text->size_buffer, fp);
 
-    buffer[*size_file] = '\n';
-    (*size_file)++;
+    text->buffer[text->size_buffer] = '\n';
+    text->size_buffer++;
 }
 
-void set_lines_to_text(char **text, char* buffer, size_t size_file)
+void set_lines_to_text(Text *text)
 {
-    text[0] = buffer;
+    text->poem[0] = text->buffer;
     
-    for(size_t i = 0, j = 1; i < size_file - 1; i++){
-        if (buffer[i] == '\0'){
-            text[j] = &buffer[i + 1];
+    for(size_t i = 0, j = 1; i < text->size_buffer - 1; i++){
+        if (text->buffer[i] == '\0'){
+            text->poem[j] = &text->buffer[i + 1];
             j++;
         }
     }
@@ -64,18 +102,18 @@ size_t get_size_file(FILE * fp)
     return total_byte;
 }
 //rename: and delete '\n'
-size_t get_num_lines(char * buffer, size_t size_file)
+void set_num_lines(Text *text)
 {
     size_t count = 0;
     
-    for(size_t i = 0; i < size_file; i++){
-        if (buffer[i] == '\n'){
-            buffer[i] = '\0';
+    for(size_t i = 0; i < text->size_buffer; i++){
+        if (text->buffer[i] == '\n'){
+            text->buffer[i] = '\0';
             count++;
         }
     }
-
-    return count;
+    //TODO: maybe without count, use only text->num_lines and set 0 at start???
+    text->num_lines = count;
 }
 
 void clear_text(char **text, char * buffer)
@@ -90,21 +128,3 @@ void print_text(char **text, size_t num_lines)
         printf("%s\n", text[i]);
 }
 
-int main(int argc, char *argv[])
-{
-    FILE * fp = init_file(argc, argv);
-    size_t size_file = get_size_file(fp);
-
-    char *buffer = (char *)calloc(size_file + 1, sizeof(char));
-    read_to_buffer(buffer, &size_file, fp);
-    
-    size_t num_lines = get_num_lines(buffer, size_file);
-    
-    char **text = (char **)calloc(num_lines, sizeof(char *));
-    set_lines_to_text(text, buffer, size_file);
-
-    print_text(text, num_lines);
-    
-    clear_text(text, buffer);
-    close_file(fp, argv[1]);
-}
