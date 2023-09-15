@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 typedef struct{
     char *buffer = NULL;
     size_t size_buffer = -1;
     char **poem = NULL;
     size_t num_lines = -1;
 }Text;
-
 
 FILE *init_file(int argc, char *argv[]);
 void  close_file(FILE * fp, char * filename);
@@ -22,21 +22,7 @@ void clear_text(char **text, char * buffer);
 void print_text(char **text, size_t num_lines);
 
 void init_Text_from_file(Text *text, FILE *fp);
-
-//TODO: change void to type of error and error handling
-void init_Text_from_file(Text *text, FILE *fp)
-{
-    text->size_buffer = get_size_file(fp);
-    text->buffer = (char *)calloc(text->size_buffer + 1, sizeof(char));
-
-    read_to_buffer(text, fp);
-    set_num_lines(text);
-    
-    text->poem = (char **)calloc(text->num_lines, sizeof(char *));
-    set_lines_to_text(text);
-
-}
-
+void clear_struct(Text *text);
 
 int main(int argc, char *argv[])
 {
@@ -50,6 +36,33 @@ int main(int argc, char *argv[])
     
     clear_text(text.poem, text.buffer);
 }
+
+//TODO: change void to type of error and error handling
+void init_Text_from_file(Text *text, FILE *fp)
+{
+    text->size_buffer = get_size_file(fp);
+    text->buffer = (char *)calloc(text->size_buffer + 1, sizeof(char));
+
+    read_to_buffer(text, fp);
+
+    //close file
+    //new function
+    set_num_lines(text);
+    
+    text->poem = (char **)calloc(text->num_lines, sizeof(char *));
+    set_lines_to_text(text);
+
+}
+
+void clear_struct(Text *text)
+{
+    text->buffer = NULL;
+    text->poem = NULL;
+    text->size_buffer = -1;
+    text->num_lines = -1;
+}
+
+
 //TODO: divide to two functions 
 FILE *init_file(int argc, char *argv[])
 {
