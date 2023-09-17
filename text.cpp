@@ -1,4 +1,6 @@
 #include "text.h"
+#include <ctype.h>
+
 
 int main(int argc, char *argv[])
 {
@@ -118,27 +120,36 @@ void print_text(char **text, size_t num_lines)
     for(size_t i = 0; i < num_lines; i++)
         printf("%s\n", text[i]);
 }
-/*
-char * clear_string_from_punct(char * str)
-{
-    size_t i = 0;
-    size_t j = 0;
-    char clear_str[100] = {};
 
-    while(str[i] != '\0'){
-        if(isalnum(srt[i])){
-            clear_str[j] = str[i];
-            j++;
-        }
-        i++;
-    }
-    return clear_str;
+const char * left_delete_punctuation(const char *str)
+{
+    while(*str && !isalnum(*str))
+        str++;
+
+    return str;
 }
-*/
 
 int comp(const void *a, const void *b)
 {   
-    return strcmp(*(const char **)a, *(const char **)b);
+    const char * str1 = *(const char **)a;
+    const char * str2 = *(const char **)b;
+
+    
+
+    while(*str1 && *str2){
+        str1 = left_delete_punctuation(str1);
+        str2 = left_delete_punctuation(str2);
+
+        if(*str1 && *str2 && (toupper(*str1) != toupper(*str2)))
+            return toupper(*str1) - toupper(*str2);
+
+        if(*str1 && *str2){
+            str1++;
+            str2++;
+        }
+    }
+    return *str1 - *str2;
+    //return strcmp(*(const char **)a, *(const char **)b);
 }
 
 

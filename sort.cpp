@@ -1,5 +1,4 @@
 #include "sort.h"
-#include "text.h"
 
 void swap(void *a, void *b, size_t size)
 {

@@ -1,9 +1,11 @@
 #pragma once
+
+#include <ctype.h>
 #include "sort.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
+
 
 typedef struct{
     char *buffer = NULL;
@@ -28,3 +30,4 @@ void init_Text_from_file(Text *text, FILE *fp);
 void clear_struct(Text *text);
 
 int comp(const void *a, const void *b);
+const char * left_delete_punctuation(const char *str);
