@@ -10,18 +10,19 @@ void swap(void *a, void *b, size_t size)
     free(temp);
 }
 
+
 size_t Partition(void *data, size_t left, size_t right, size_t size, int (*comp)(const void *, const void *))
 {
     void ** mid_elem = (void **)calloc(size, sizeof(char));
-    memcpy(mid_elem, (void **)data + (left + right) / 2, size);
+    memcpy(mid_elem, (char *)data + ((left + right) / 2) * size, size);
        
     
     while(true){
-        while(comp((void **)data + left, mid_elem) < 0){
+        while(comp((char *)data + left * size, mid_elem) < 0){
             left++;
         }
 
-        while(comp(mid_elem, (void **)data + right) < 0){
+        while(comp(mid_elem, (char *)data + right * size) < 0){
             right--;
         }
 
@@ -31,7 +32,7 @@ size_t Partition(void *data, size_t left, size_t right, size_t size, int (*comp)
         }
             
 
-        swap((void **)data + left, (void **)data + right, size);
+        swap((char *)data + left * size, (char *)data + right * size, size);
         left++;
         right--;
     }
@@ -42,8 +43,8 @@ size_t Partition(void *data, size_t left, size_t right, size_t size, int (*comp)
 void Sort(void *data, size_t left, size_t right, size_t size, int (*comp)(const void *, const void *))
 {
     if (left + 1 == right){
-        if (comp((void **)data + right, (void **)data + left) < 0){
-            swap((void **)data + left, (void **)data + right, size);
+        if (comp((char *) data + right * size, (char *) data + left * size) < 0){
+            swap((char *) data + left * size, (char *) data + right * size, size);
         }
         return;
     }
