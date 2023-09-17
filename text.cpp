@@ -1,28 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-typedef struct{
-    char *buffer = NULL;
-    size_t size_buffer = -1;
-    char **poem = NULL;
-    size_t num_lines = -1;
-}Text;
-
-FILE *init_file(int argc, char *argv[]);
-void  close_file(FILE * fp, char * filename);
-
-void read_to_buffer(Text *text, FILE *fp);
-void set_lines_to_text(Text *text);
-
-size_t get_size_file(FILE * fp);
-void set_num_lines(Text *text);
-
-void clear_text(char **text, char * buffer);
-void print_text(char **text, size_t num_lines);
-
-void init_Text_from_file(Text *text, FILE *fp);
-void clear_struct(Text *text);
+#include "text.h"
 
 int main(int argc, char *argv[])
 {
@@ -31,10 +7,12 @@ int main(int argc, char *argv[])
     
     init_Text_from_file(&text, fp);
     close_file(fp, argv[1]);
-
+    //qsort(text.poem, text.num_lines, sizeof(char *), comp);
+    Sort(text.poem, 0, text.num_lines - 1, sizeof(char **), comp);
     print_text(text.poem, text.num_lines);
     
     clear_text(text.poem, text.buffer);
+    clear_struct(&text);
 }
 
 //TODO: change void to type of error and error handling
@@ -140,4 +118,27 @@ void print_text(char **text, size_t num_lines)
     for(size_t i = 0; i < num_lines; i++)
         printf("%s\n", text[i]);
 }
+/*
+char * clear_string_from_punct(char * str)
+{
+    size_t i = 0;
+    size_t j = 0;
+    char clear_str[100] = {};
+
+    while(str[i] != '\0'){
+        if(isalnum(srt[i])){
+            clear_str[j] = str[i];
+            j++;
+        }
+        i++;
+    }
+    return clear_str;
+}
+*/
+
+int comp(const void *a, const void *b)
+{   
+    return strcmp(*(const char **)a, *(const char **)b);
+}
+
 
