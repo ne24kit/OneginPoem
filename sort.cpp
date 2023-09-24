@@ -1,49 +1,38 @@
 #include "sort.h"
 
-void swap(void *a, void *b, size_t size)
+size_t Partition(void *data, size_t left, size_t right, size_t size,
+                 int (*comp)(const void *, const void *))
 {
-    void **temp = (void **)calloc(size, sizeof(char));
-    memcpy(temp, a, size);
-    memcpy(a, b, size);
-    memcpy(b, temp, size);
-    free(temp);
-}
-
-
-size_t Partition(void *data, size_t left, size_t right, size_t size, int (*comp)(const void *, const void *))
-{
-    void ** mid_elem = (void **)calloc(size, sizeof(char));
+    void * mid_elem = calloc(size, sizeof(char));
     memcpy(mid_elem, (char *)data + ((left + right) / 2) * size, size);
-       
-    
+
     while(true){
-        while(comp((char *)data + left * size, mid_elem) < 0){
+        while(comp(POINTER_ELEM(data, left, size), mid_elem) < 0){
             left++;
         }
 
-        while(comp(mid_elem, (char *)data + right * size) < 0){
+        while(comp(mid_elem, POINTER_ELEM(data, right, size)) < 0){
             right--;
         }
 
-        if (left >= right){
-            free(mid_elem);
+        if (left >= right)
             return right;
-        }
             
 
-        swap((char *)data + left * size, (char *)data + right * size, size);
+        swap(POINTER_ELEM(data, left, size), POINTER_ELEM(data, right, size), size);
         left++;
-        right--;
+        right--;    
     }
     
 
 }
 
-void Sort(void *data, size_t left, size_t right, size_t size, int (*comp)(const void *, const void *))
+void Sort(void *data, size_t left, size_t right, size_t size, 
+            int (*comp)(const void *, const void *))
 {
     if (left + 1 == right){
-        if (comp((char *) data + right * size, (char *) data + left * size) < 0){
-            swap((char *) data + left * size, (char *) data + right * size, size);
+        if (comp(POINTER_ELEM(data, right, size), POINTER_ELEM(data, left, size)) < 0){
+            swap(POINTER_ELEM(data, left, size), POINTER_ELEM(data, right, size), size);
         }
         return;
     }
