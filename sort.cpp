@@ -1,5 +1,16 @@
 #include "sort.h"
 
+void sort(void *data, size_t left, size_t right, size_t size, 
+            int (*comp)(const void *, const void *))
+{
+    MY_ASSERT(data, "Zero pointer to sorted array\n");
+    MY_ASSERT((left <= right), "Incorrectly passed the sorting limits\n");
+    MY_ASSERT(size, "Array size must be non-zero\n");
+    MY_ASSERT(comp, "Pointer to comparator zero\n");
+
+    sort_data(data, left, right, size, comp);
+}
+
 size_t Partition(void *data, size_t left, size_t right, size_t size,
                  int (*comp)(const void *, const void *))
 {
@@ -15,19 +26,18 @@ size_t Partition(void *data, size_t left, size_t right, size_t size,
             right--;
         }
 
-        if (left >= right)
+        if (left >= right){
+            free(mid_elem);
             return right;
-            
+        }
 
         swap(POINTER_ELEM(data, left, size), POINTER_ELEM(data, right, size), size);
         left++;
         right--;    
     }
-    
-
 }
 
-void Sort(void *data, size_t left, size_t right, size_t size, 
+void sort_data(void *data, size_t left, size_t right, size_t size, 
             int (*comp)(const void *, const void *))
 {
     if (left + 1 == right){
@@ -39,7 +49,7 @@ void Sort(void *data, size_t left, size_t right, size_t size,
 
     if (left < right){
         size_t mid = Partition(data, left, right, size, comp);
-        Sort(data, left, mid, size, comp);
-        Sort(data, mid + 1, right, size, comp);
+        sort_data(data, left, mid, size, comp);
+        sort_data(data, mid + 1, right, size, comp);
     }
 }

@@ -16,7 +16,7 @@ typedef struct {
 } Text;
 
 FILE *init_file(int argc, char *argv[]);
-void  close_file(FILE * fp, char * filename);
+void  close_file(FILE * fp);
 
 void read_to_buffer(Text *text, FILE *fp);
 void set_lines_to_text(Text *text);
