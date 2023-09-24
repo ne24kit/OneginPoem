@@ -1,5 +1,4 @@
 #include "text.h"
-#include <ctype.h>
 
 
 int main(int argc, char *argv[])
@@ -10,10 +9,9 @@ int main(int argc, char *argv[])
     init_Text_from_file(&text, fp);
     close_file(fp, argv[1]);
     //qsort(text.poem, text.num_lines, sizeof(char *), comp);
-    Sort(text.poem, 0, text.num_lines - 1, sizeof(char **), comp);
+    Sort(text.poem, 0, text.num_lines - 1, sizeof(char **), right_comp);
     print_text(text.poem, text.num_lines);
     
-    clear_text(text.poem, text.buffer);
     clear_struct(&text);
 }
 
@@ -21,8 +19,12 @@ int main(int argc, char *argv[])
 void init_Text_from_file(Text *text, FILE *fp)
 {
     text->size_buffer = get_size_file(fp);
-    text->buffer = (char *)calloc(text->size_buffer + 1, sizeof(char));
-
+    text->buffer = (char *)calloc(text->size_buffer + 1 + 1, sizeof(char));
+    //ставлю '\0', для обратной сортировки
+    *text->buffer = '\0';
+    //
+    text->buffer++;
+    
     read_to_buffer(text, fp);
 
     //close file
@@ -36,10 +38,14 @@ void init_Text_from_file(Text *text, FILE *fp)
 
 void clear_struct(Text *text)
 {
+    text->buffer--;
+    free(text->buffer);
+    free(text->poem);
     text->buffer = NULL;
     text->poem = NULL;
     text->size_buffer = -1;
     text->num_lines = -1;
+    text = NULL;
 }
 
 
@@ -47,7 +53,7 @@ void clear_struct(Text *text)
 FILE *init_file(int argc, char *argv[])
 {
     FILE *fp = NULL;
-    
+    MY_ASSERT_UPG((argc == 2), "Write ./a.out <filename.txt>\n", NULL);
     if (argc != 2){
         fprintf(stderr, "Write ./a.out <filename.txt>\n");
         exit(0);
@@ -109,19 +115,13 @@ void set_num_lines(Text *text)
     text->num_lines = count;
 }
 
-void clear_text(char **text, char * buffer)
-{
-    free(buffer);
-    free(text);
-}
-
 void print_text(char **text, size_t num_lines)
 {
     for(size_t i = 0; i < num_lines; i++)
         printf("%s\n", text[i]);
 }
 
-const char * left_delete_punctuation(const char *str)
+const char * left_skip_punctuation(const char *str)
 {
     while(*str && !isalnum(*str))
         str++;
@@ -129,16 +129,49 @@ const char * left_delete_punctuation(const char *str)
     return str;
 }
 
+const char * right_skip_punctuation(const char *str)
+{
+    
+    while(*str && !isalnum(*str))
+        str--;
+
+    return str;
+}
+
+int right_comp(const void *a, const void *b)
+{   
+    const char * str1 = *(const char **)a;
+    const char * str2 = *(const char **)b;
+    str1 += strlen(str1) - 1;
+    str2 += strlen(str2) - 1;
+    
+    while(*str1 && *str2){
+        str1 = right_skip_punctuation(str1);
+        str2 = right_skip_punctuation(str2);
+
+        if(*str1 && *str2 && (toupper(*str1) != toupper(*str2)))
+            return toupper(*str1) - toupper(*str2);
+
+        if(*str1 && *str2){
+            str1--;
+            str2--;
+        }
+    }
+    return *str1 - *str2;
+}
+
+
+
+
 int comp(const void *a, const void *b)
 {   
     const char * str1 = *(const char **)a;
     const char * str2 = *(const char **)b;
 
-    
 
     while(*str1 && *str2){
-        str1 = left_delete_punctuation(str1);
-        str2 = left_delete_punctuation(str2);
+        str1 = left_skip_punctuation(str1);
+        str2 = left_skip_punctuation(str2);
 
         if(*str1 && *str2 && (toupper(*str1) != toupper(*str2)))
             return toupper(*str1) - toupper(*str2);
@@ -149,7 +182,4 @@ int comp(const void *a, const void *b)
         }
     }
     return *str1 - *str2;
-    //return strcmp(*(const char **)a, *(const char **)b);
 }
-
-
