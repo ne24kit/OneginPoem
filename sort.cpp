@@ -31,7 +31,9 @@ size_t Partition(void *data, size_t left, size_t right, size_t size,
             return right;
         }
 
-        swap(POINTER_ELEM(data, left, size), POINTER_ELEM(data, right, size), size);
+        swap(POINTER_ELEM(data, left, size), 
+            POINTER_ELEM(data, right, size), size);
+            
         left++;
         right--;    
     }
@@ -41,8 +43,10 @@ void sort_data(void *data, size_t left, size_t right, size_t size,
             int (*comp)(const void *, const void *))
 {
     if (left + 1 == right){
-        if (comp(POINTER_ELEM(data, right, size), POINTER_ELEM(data, left, size)) < 0){
-            swap(POINTER_ELEM(data, left, size), POINTER_ELEM(data, right, size), size);
+        if (comp(POINTER_ELEM(data, right, size), 
+                POINTER_ELEM(data, left, size)) < 0){
+            swap(POINTER_ELEM(data, left, size), 
+                POINTER_ELEM(data, right, size), size);
         }
         return;
     }
